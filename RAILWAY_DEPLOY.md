@@ -48,24 +48,24 @@ This ensures your `database.sqlite` file is stored safely and survives deploymen
 
 ## Step 4: Push Changes to GitHub
 
-I have created a `Dockerfile` in your project. This is a set of strict instructions that tells Railway exactly how to build your app, including installing the missing `gd` extension.
+I have created a `nixpacks.toml` file that does two things:
+1. Installs the required extensions (`gd`, `zip`, etc.)
+2. **Overrides the build command** to force Composer to ignore the platform check.
 
-1. **Commit and Push** the new `Dockerfile`:
+1. **Commit and Push** the new `nixpacks.toml` file:
    ```bash
-   git add Dockerfile
-   git commit -m "Add Dockerfile for Railway deployment"
+   git add nixpacks.toml
+   git commit -m "Add nixpacks.toml with build command override"
    git push
    ```
 
-2. Railway will detect the `Dockerfile` and automatically switch to building with Docker.
-
-> **Important:** If you have any "Build Command" or "Start Command" set in your Railway Service Settings, **please clear them**. The Dockerfile handles everything.
+2. Railway will detect the `nixpacks.toml` and use our custom build command.
 
 ## Step 5: Verify Deployment
 
 1. Go to the **"Deployments"** tab in Railway
-2. You should see a new deployment building (it might take 2-3 minutes)
-3. Once active, your site is live!
+2. You should see a new deployment building
+3. Check the **"Logs"** to ensure `composer install` succeeds (it should now have the `--ignore-platform-req=ext-gd` flag)
 
 ## 🎉 You're Live!
 
