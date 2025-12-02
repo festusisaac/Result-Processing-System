@@ -21,6 +21,9 @@ RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd \
     && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath opcache xml zip
 
+# Verify GD is installed (Critical step)
+RUN php -r "if(!extension_loaded('gd')) { echo 'GD not loaded'; exit(1); }"
+
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
@@ -35,7 +38,9 @@ RUN curl -fsSL https://deb.nodesource.com/setup_20.x | bash - \
 COPY . .
 
 # Install PHP dependencies
-RUN composer install --no-dev --optimize-autoloader --no-interaction
+# We use --ignore-platform-req=ext-gd because we verified it exists above, 
+# but Composer sometimes fails to detect it in Docker build context
+RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-platform-req=ext-gd
 
 # Install JS dependencies and build
 RUN npm install && npm run build
