@@ -34,7 +34,7 @@ if [ ! -f /var/www/html/database/database.sqlite ]; then
     echo "Running initial migrations and seeding..."
     # Explicitly pass connection to be 100% sure
     php artisan migrate --force --database=sqlite
-    php artisan db:seed --force --database=sqlite
+    php artisan db:seed --class=DatabaseSeeder --force
 else
     echo "Database exists. Running migrations..."
     php artisan migrate --force --database=sqlite
