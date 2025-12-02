@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
+    <title>{{ config('app.name', 'RMS') }} - @yield('title')</title>
+    
+    <!-- Styles -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#4F46E5',
+                        sidebar: '#1E293B',
+                        'sidebar-hover': '#334155',
+                    }
+                }
+            }
+        }
+    </script>
+    @stack('styles')
+</head>
+<body class="bg-gray-50 font-sans antialiased">
+    @auth
+        <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: true, openMenus: {} }">
+            <!-- Sidebar -->
+            <aside :class="sidebarOpen ? 'w-64' : 'w-20'" 
+                   class="bg-sidebar flex-shrink-0 flex flex-col shadow-xl transition-all duration-300 ease-in-out">
+                <!-- Logo with Toggle Button -->
+                <div class="flex items-center justify-between h-16 bg-gradient-to-r from-indigo-600 to-purple-600 shadow-md px-4">
+                    <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 text-white">
+                        <!-- School Logo -->
+                        <div class="flex-shrink-0">
+                            @if(file_exists(public_path('images/school-logo.png')))
+                                <img src="{{ asset('images/school-logo.png') }}" alt="School Logo" class="h-10 w-10 rounded-full object-cover bg-white p-1">
+                            @else
+                                <div class="h-10 w-10 rounded-full bg-white flex items-center justify-center">
+                                    <i class="fas fa-graduation-cap text-indigo-600 text-xl"></i>
+                                </div>
+                            @endif
+                        </div>
+                        <!-- App Name -->
+                        <span x-show="sidebarOpen" x-transition class="text-xl font-bold">RMS</span>
+                    </a>
+                    
+                    <!-- Toggle Button -->
+                    <button @click="sidebarOpen = !sidebarOpen" 
+                            class="p-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all duration-200">
+                        <i class="fas" :class="sidebarOpen ? 'fa-chevron-left' : 'fa-chevron-right'"></i>
+                    </button>
+                </div>
+
+                <!-- Navigation -->
+                <nav class="flex-1 overflow-y-auto py-4 px-3 space-y-1">
+                    <!-- Dashboard -->
+                    <a href="{{ route('dashboard') }}" 
+                       class="flex items-center px-4 py-3 text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg group {{ request()->routeIs('dashboard') ? 'bg-indigo-600 text-white shadow-lg' : '' }}">
+                        <i class="fas fa-home w-5 text-lg {{ request()->routeIs('dashboard') ? 'text-white' : 'text-gray-400 group-hover:text-white' }}"></i>
+                        <span x-show="sidebarOpen" x-transition class="ml-3 font-medium">Dashboard</span>
+                    </a>
+
+                    <!-- Students -->
+                    <a href="{{ route('students.index') }}" 
+                       class="flex items-center px-4 py-3 text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg group {{ request()->routeIs('students.*') ? 'bg-indigo-600 text-white shadow-lg' : '' }}">
+                        <i class="fas fa-user-graduate w-5 text-lg {{ request()->routeIs('students.*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }}"></i>
+                        <span x-show="sidebarOpen" x-transition class="ml-3 font-medium">Students</span>
+                    </a>
+
+                    <!-- Academic Section -->
+                    <div class="space-y-1">
+                        <button @click="openMenus['academic'] = !openMenus['academic']" 
+                                class="flex items-center justify-between w-full px-4 py-3 text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg group {{ request()->routeIs('sessions.*') || request()->routeIs('classes.*') || request()->routeIs('subjects.*') || request()->routeIs('subject-groups.*') || request()->routeIs('teachers.*') || request()->routeIs('terms.*') ? 'bg-indigo-600 text-white shadow-lg' : '' }}">
+                            <div class="flex items-center">
+                                <i class="fas fa-school w-5 text-lg {{ request()->routeIs('sessions.*') || request()->routeIs('classes.*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }}"></i>
+                                <span x-show="sidebarOpen" x-transition class="ml-3 font-medium">Academic</span>
+                            </div>
+                            <i x-show="sidebarOpen" x-transition class="fas fa-chevron-down text-sm transition-transform duration-200" :class="openMenus['academic'] ? 'rotate-180' : ''"></i>
+                        </button>
+                        <div x-show="openMenus['academic'] && sidebarOpen" 
+                             x-collapse 
+                             class="ml-4 space-y-1 border-l-2 border-gray-700 pl-4">
+                            <a href="{{ route('sessions.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('sessions.*') ? 'bg-sidebar-hover text-white' : '' }}">
+                                <i class="fas fa-calendar-alt w-4 mr-2"></i> Sessions
+                            </a>
+                            <a href="{{ route('classes.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('classes.*') ? 'bg-sidebar-hover text-white' : '' }}">
+                                <i class="fas fa-chalkboard w-4 mr-2"></i> Classes
+                            </a>
+                            <a href="{{ route('subject-groups.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('subject-groups.*') ? 'bg-sidebar-hover text-white' : '' }}">
+                                <i class="fas fa-layer-group w-4 mr-2"></i> Subject Groups
+                            </a>
+                            <a href="{{ route('subjects.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('subjects.*') ? 'bg-sidebar-hover text-white' : '' }}">
+                                <i class="fas fa-book w-4 mr-2"></i> Subjects
+                            </a>
+                            <a href="{{ route('teachers.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('teachers.*') ? 'bg-sidebar-hover text-white' : '' }}">
+                                <i class="fas fa-chalkboard-teacher w-4 mr-2"></i> Teachers
+                            </a>
+                            <a href="{{ route('terms.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('terms.*') ? 'bg-sidebar-hover text-white' : '' }}">
+                                <i class="fas fa-calendar-week w-4 mr-2"></i> Terms
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Assessment Section -->
+                    <div class="space-y-1">
+                        <button @click="openMenus['assessment'] = !openMenus['assessment']" 
+                                class="flex items-center justify-between w-full px-4 py-3 text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg group {{ request()->routeIs('scores.*') || request()->routeIs('attendance.*') || request()->routeIs('skills.*') || request()->routeIs('psychomotor-skills.*') ? 'bg-indigo-600 text-white shadow-lg' : '' }}">
+                            <div class="flex items-center">
+                                <i class="fas fa-clipboard-check w-5 text-lg {{ request()->routeIs('scores.*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }}"></i>
+                                <span x-show="sidebarOpen" x-transition class="ml-3 font-medium">Assessment</span>
+                            </div>
+                            <i x-show="sidebarOpen" x-transition class="fas fa-chevron-down text-sm transition-transform duration-200" :class="openMenus['assessment'] ? 'rotate-180' : ''"></i>
+                        </button>
+                        <div x-show="openMenus['assessment'] && sidebarOpen" 
+                             x-collapse 
+                             class="ml-4 space-y-1 border-l-2 border-gray-700 pl-4">
+                            <a href="{{ route('scores.scoresheet') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('scores.scoresheet') ? 'bg-sidebar-hover text-white' : '' }}">
+                                <i class="fas fa-table w-4 mr-2"></i> Scoresheet
+                            </a>
+                            <a href="{{ route('scores.broadsheet') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('scores.broadsheet') ? 'bg-sidebar-hover text-white' : '' }}">
+                                <i class="fas fa-file-excel w-4 mr-2"></i> Broadsheet
+                            </a>
+                            <a href="{{ route('attendance.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('attendance.index') ? 'bg-sidebar-hover text-white' : '' }}">
+                                <i class="fas fa-user-check w-4 mr-2"></i> Attendance
+                            </a>
+                            <a href="{{ route('skills.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('skills.index') ? 'bg-sidebar-hover text-white' : '' }}">
+                                <i class="fas fa-star w-4 mr-2"></i> Skills & Attributes
+                            </a>
+                            <a href="{{ route('psychomotor-skills.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('psychomotor-skills.*') ? 'bg-sidebar-hover text-white' : '' }}">
+                                <i class="fas fa-running w-4 mr-2"></i> Psychomotor Skills
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Reports Section -->
+                    <div class="space-y-1">
+                        <button @click="openMenus['reports'] = !openMenus['reports']" 
+                                class="flex items-center justify-between w-full px-4 py-3 text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg group {{ request()->routeIs('results.*') || request()->routeIs('report-settings.*') ? 'bg-indigo-600 text-white shadow-lg' : '' }}">
+                            <div class="flex items-center">
+                                <i class="fas fa-file-alt w-5 text-lg {{ request()->routeIs('results.*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }}"></i>
+                                <span x-show="sidebarOpen" x-transition class="ml-3 font-medium">Reports</span>
+                            </div>
+                            <i x-show="sidebarOpen" x-transition class="fas fa-chevron-down text-sm transition-transform duration-200" :class="openMenus['reports'] ? 'rotate-180' : ''"></i>
+                        </button>
+                        <div x-show="openMenus['reports'] && sidebarOpen" 
+                             x-collapse 
+                             class="ml-4 space-y-1 border-l-2 border-gray-700 pl-4">
+                            <a href="{{ route('results.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('results.*') ? 'bg-sidebar-hover text-white' : '' }}">
+                                <i class="fas fa-poll w-4 mr-2"></i> View Results
+                            </a>
+                            <a href="{{ route('reports.result_management') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('reports.result_management') ? 'bg-sidebar-hover text-white' : '' }}">
+                                <i class="fas fa-cogs w-4 mr-2"></i> Result Management
+                            </a>
+                            <a href="{{ route('report-settings.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('report-settings.*') ? 'bg-sidebar-hover text-white' : '' }}">
+                                <i class="fas fa-sliders-h w-4 mr-2"></i> Report Settings
+                            </a>
+                        </div>
+                    </div>
+
+                    <!-- Scratch Cards -->
+                        <div class="flex-shrink-0">
+                            <div class="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold text-lg shadow-lg">
+                                {{ strtoupper(substr(Auth::user()->name, 0, 1)) }}
+                            </div>
+                        </div>
+                        <div x-show="sidebarOpen" x-transition class="ml-3 flex-1 min-w-0">
+                            <p class="text-sm font-medium text-white truncate">{{ Auth::user()->name }}</p>
+                            <p class="text-xs text-gray-400 truncate">{{ Auth::user()->email }}</p>
+                        </div>
+                        <i x-show="sidebarOpen" x-transition class="fas fa-chevron-up text-gray-400 text-sm transition-transform duration-200" :class="open ? '' : 'rotate-180'"></i>
+                    </button>
+                    <div x-show="open && sidebarOpen" x-collapse class="mt-2">
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit" class="flex items-center w-full px-4 py-2 text-sm text-gray-300 hover:bg-red-600 hover:text-white rounded-lg transition-all duration-200">
+                                <i class="fas fa-sign-out-alt w-4 mr-2"></i> Logout
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- Main Content -->
+            <div class="flex-1 flex flex-col overflow-hidden">
+                <!-- Top Bar with School Name -->
+                <header class="bg-white shadow-sm z-10 border-b border-gray-200">
+                    <div class="px-6 py-4 flex items-center justify-between">
+                        <div class="flex items-center gap-4">
+                            <!-- School Name -->
+                            <div class="flex items-center gap-2 pr-4 border-r border-gray-300">
+                                <i class="fas fa-school text-indigo-600 text-lg"></i>
+                                <span class="text-lg font-bold text-indigo-600">{{ env('SCHOOL_NAME', 'School Name') }}</span>
+                            </div>
+                            <!-- Page Title -->
+                            <div>
+                                <h1 class="text-2xl font-bold text-gray-800">@yield('page-title', 'Dashboard')</h1>
+                                <p class="text-sm text-gray-500 mt-1">@yield('page-description', 'Welcome back!')</p>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+
+                <!-- Page Content -->
+                <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+                    @yield('content')
+
+                    {{-- Global toast for success messages --}}
+                    @if(session('success'))
+                        <div id="global-success-toast" class="fixed top-4 right-4 z-50 hidden">
+                            <div class="bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center space-x-3" role="status" aria-live="polite">
+                                <i class="fas fa-check-circle text-xl"></i>
+                                <span>{{ session('success') }}</span>
+                            </div>
+                        </div>
+                        <script>
+                            (function(){
+                                try {
+                                    const toast = document.getElementById('global-success-toast');
+                                    if (toast) {
+                                        toast.classList.remove('hidden');
+                                        setTimeout(() => {
+                                            toast.style.transition = 'opacity 0.6s';
+                                            toast.style.opacity = '0';
+                                            setTimeout(()=> toast.remove(), 600);
+                                        }, 4000);
+                                    }
+                                } catch (e) { console.error(e); }
+                            })();
+                        </script>
+                    @endif
+                </main>
+            </div>
+        </div>
+    @else
+        <!-- Guest Layout (Login Page) -->
+        <main class="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-500 via-purple-500 to-pink-500">
+            @yield('content')
+        </main>
+    @endauth
+
+    @stack('scripts')
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    <!-- Global confirmation modal + toast (used across the app) -->
+    <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-40">
+        <div class="bg-white rounded-lg shadow-lg w-11/12 max-w-md p-6">
+            <h3 class="text-lg font-semibold mb-2">Please confirm</h3>
+            <p id="confirm-message" class="text-sm text-gray-700 mb-4">Are you sure?</p>
+            <div class="flex justify-end space-x-2">
+                <button id="confirm-cancel" class="px-4 py-2 bg-gray-200 rounded">Cancel</button>
+                <button id="confirm-ok" class="px-4 py-2 bg-red-600 text-white rounded">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global toast utility
+        function showToast(message, type = 'success', duration = 4000) {
+            const toastId = 'toast-' + Date.now();
+            const bgColor = type === 'success' ? 'bg-green-500' : type === 'error' ? 'bg-red-500' : 'bg-blue-500';
+            const icon = type === 'success' ? '✓' : type === 'error' ? '✕' : 'ℹ';
+
+            const toast = document.createElement('div');
+            toast.id = toastId;
+            toast.innerHTML = `
+                <div class="${bgColor} text-white px-6 py-4 rounded-lg shadow-lg flex items-center space-x-3 animate-slide-in" role="status" aria-live="polite">
+                    <span class="text-lg font-bold">${icon}</span>
+                    <span>${message}</span>
+                </div>
+            `;
+
+            let container = document.getElementById('toast-container');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'toast-container';
+                container.className = 'fixed top-4 right-4 z-50 space-y-2';
+                document.body.appendChild(container);
+
+                if (!document.getElementById('toast-styles')) {
+                    const style = document.createElement('style');
+                    style.id = 'toast-styles';
+                    style.textContent = `
+                        @keyframes slideIn { from { transform: translateX(400px); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+                        .animate-slide-in { animation: slideIn 0.3s ease-out; }
+                    `;
+                    document.head.appendChild(style);
+                }
+            }
+
+            container.appendChild(toast);
+
+            setTimeout(() => {
+                toast.style.transition = 'opacity 0.3s';
+                toast.style.opacity = '0';
+                setTimeout(() => toast.remove(), 300);
+            }, duration);
+        }
+
+        // Global confirmation modal handling
+        (function(){
+            const modal = document.getElementById('confirm-modal');
+            if (!modal) return;
+            const msgEl = document.getElementById('confirm-message');
+            const okBtn = document.getElementById('confirm-ok');
+            const cancelBtn = document.getElementById('confirm-cancel');
+            let activeForm = null;
+
+            function showModal(message, form) {
+                activeForm = form;
+                msgEl.textContent = message;
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+            }
+
+            function hideModal() {
+                activeForm = null;
+                modal.classList.add('hidden');
+                modal.classList.remove('flex');
+            }
+
+            document.addEventListener('click', function(e){
+                const el = e.target.closest('.js-confirm-delete');
+                if (el && (el.tagName === 'FORM' || el.closest('form'))) {
+                    // forms with class
+                    e.preventDefault();
+                    const form = el.tagName === 'FORM' ? el : el.closest('form');
+                    const message = form.getAttribute('data-confirm') || 'Are you sure?';
+                    showModal(message, form);
+                }
+            }, true);
+
+            cancelBtn.addEventListener('click', function(){ hideModal(); });
+            okBtn.addEventListener('click', function(){ if (activeForm) activeForm.submit(); });
+            document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !modal.classList.contains('hidden')) hideModal(); });
+        })();
+    </script>
+</body>
+</html>
