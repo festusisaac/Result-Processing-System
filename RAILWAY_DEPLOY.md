@@ -48,24 +48,34 @@ This ensures your `database.sqlite` file is stored safely and survives deploymen
 
 ## Step 4: Push Changes to GitHub
 
-I have created a `nixpacks.toml` file in your project. This file tells Railway exactly which PHP extensions to install (like `gd` and `zip`) to fix the errors you were seeing.
+I have created a `Dockerfile` in your project. This is a set of strict instructions that tells Railway exactly how to build your app, including installing the missing `gd` extension.
 
-1. **Commit and Push** the new `nixpacks.toml` file:
+1. **Commit and Push** the new `Dockerfile`:
    ```bash
-   git add nixpacks.toml
-   git commit -m "Add nixpacks config to fix PHP extensions"
+   git add Dockerfile
+   git commit -m "Add Dockerfile for Railway deployment"
    git push
    ```
 
-2. Railway should automatically detect the new commit and start a redeploy.
+2. Railway will detect the `Dockerfile` and automatically switch to building with Docker.
 
-> **Note:** The `nixpacks.toml` file now handles the Build and Start commands automatically. You don't need to configure them manually in Railway settings anymore. If you added them previously, you can clear them or leave them (nixpacks usually takes precedence).
+> **Important:** If you have any "Build Command" or "Start Command" set in your Railway Service Settings, **please clear them**. The Dockerfile handles everything.
 
 ## Step 5: Verify Deployment
 
 1. Go to the **"Deployments"** tab in Railway
-2. You should see a new deployment building
-3. Check the **"Logs"** to ensure `composer install` succeeds (it should now find `ext-gd`)
+2. You should see a new deployment building (it might take 2-3 minutes)
+3. Once active, your site is live!
+
+## 🎉 You're Live!
+
+Your application should now be running on Railway with a persistent SQLite database!
+
+### Troubleshooting
+
+- **500 Error?** Check "Logs" tab in Railway.
+- **Database Reset?** Ensure you added the Volume correctly to `/app/database`.
+- **Missing Styles?** Ensure `APP_URL` matches your Railway URL exactly (https included).
 
 ## 🎉 You're Live!
 
