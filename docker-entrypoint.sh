@@ -7,6 +7,8 @@ echo "🚀 Starting deployment script..."
 if [ ! -f /var/www/html/.env ]; then
     echo "Creating .env from .env.example..."
     cp /var/www/html/.env.example /var/www/html/.env
+    echo "Generating APP_KEY..."
+    php artisan key:generate --force
 fi
 
 # 2. Aggressively force SQLite in .env
