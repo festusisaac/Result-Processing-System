@@ -19,7 +19,7 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install pdo_mysql mbstring exif pcntl bcmath opcache xml zip
+    && docker-php-ext-install pdo pdo_sqlite pdo_mysql mbstring exif pcntl bcmath opcache xml zip
 
 # Verify GD is installed (Critical step)
 RUN php -r "if(!extension_loaded('gd')) { echo 'GD not loaded'; exit(1); }"
@@ -44,7 +44,9 @@ RUN composer install --no-dev --optimize-autoloader --no-interaction --ignore-pl
 RUN npm install && npm run build
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
+    && mkdir -p /var/www/html/database \
+    && chown -R www-data:www-data /var/www/html/database
 
 # Copy and setup entrypoint
 COPY docker-entrypoint.sh /usr/local/bin/
@@ -60,3 +62,4 @@ EXPOSE 80
 
 # Start command
 ENTRYPOINT ["docker-entrypoint.sh"]
+CMD ["apache2-foreground"]
