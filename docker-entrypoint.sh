@@ -11,6 +11,12 @@ if [ ! -f /var/www/html/.env ]; then
     php artisan key:generate --force
 fi
 
+# Set APP_URL if RAILWAY_PUBLIC_DOMAIN is available
+if [ ! -z "$RAILWAY_PUBLIC_DOMAIN" ]; then
+    echo "Setting APP_URL to https://$RAILWAY_PUBLIC_DOMAIN..."
+    sed -i "s|APP_URL=.*|APP_URL=https://$RAILWAY_PUBLIC_DOMAIN|g" /var/www/html/.env
+fi
+
 # 2. Aggressively force SQLite in .env
 # This ensures that even if Laravel reads the file directly, it sees SQLite
 echo "Forcing SQLite configuration in .env..."
