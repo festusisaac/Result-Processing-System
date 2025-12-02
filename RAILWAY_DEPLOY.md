@@ -46,23 +46,26 @@ Since Railway is ephemeral (files are reset on every deploy), you **MUST** add a
 
 This ensures your `database.sqlite` file is stored safely and survives deployments.
 
-## Step 4: Configure Build & Deploy Commands
+## Step 4: Push Changes to GitHub
 
-1. Go to **Settings** → **Build**
-2. **Build Command:**
+I have created a `nixpacks.toml` file in your project. This file tells Railway exactly which PHP extensions to install (like `gd` and `zip`) to fix the errors you were seeing.
+
+1. **Commit and Push** the new `nixpacks.toml` file:
    ```bash
-   npm install && npm run build && composer install --no-dev --optimize-autoloader
+   git add nixpacks.toml
+   git commit -m "Add nixpacks config to fix PHP extensions"
+   git push
    ```
-3. **Deploy Command:**
-   ```bash
-   touch /app/database/database.sqlite && php artisan migrate --force && php artisan config:cache && php artisan route:cache && php artisan view:cache
-   ```
-   *This creates the database file if it doesn't exist, runs migrations, and caches configuration.*
 
-## Step 5: Redeploy
+2. Railway should automatically detect the new commit and start a redeploy.
 
-1. Go to the **"Deployments"** tab
-2. Click **"Redeploy"** to apply changes
+> **Note:** The `nixpacks.toml` file now handles the Build and Start commands automatically. You don't need to configure them manually in Railway settings anymore. If you added them previously, you can clear them or leave them (nixpacks usually takes precedence).
+
+## Step 5: Verify Deployment
+
+1. Go to the **"Deployments"** tab in Railway
+2. You should see a new deployment building
+3. Check the **"Logs"** to ensure `composer install` succeeds (it should now find `ext-gd`)
 
 ## 🎉 You're Live!
 
@@ -73,3 +76,4 @@ Your application should now be running on Railway with a persistent SQLite datab
 - **500 Error?** Check "Logs" tab in Railway.
 - **Database Reset?** Ensure you added the Volume correctly to `/app/database`.
 - **Missing Styles?** Ensure `APP_URL` matches your Railway URL exactly (https included).
+
