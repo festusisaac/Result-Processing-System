@@ -4,7 +4,7 @@ A comprehensive web-based Result Management System designed for schools to effic
 
 ![Laravel](https://img.shields.io/badge/Laravel-10.x-red?style=flat-square&logo=laravel)
 ![PHP](https://img.shields.io/badge/PHP-8.1+-blue?style=flat-square&logo=php)
-![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange?style=flat-square&logo=mysql)
+![SQLite](https://img.shields.io/badge/SQLite-3.x-blue?style=flat-square&logo=sqlite)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
 ## ✨ Features
@@ -52,8 +52,10 @@ A comprehensive web-based Result Management System designed for schools to effic
 ### Prerequisites
 - PHP >= 8.1
 - Composer
-- MySQL >= 8.0
+- SQLite 3.x (included with PHP)
 - Node.js & NPM (for frontend assets)
+
+> **Note:** For production with 500+ students or 50+ concurrent users, consider migrating to MySQL. See [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md) for details.
 
 ### Step 1: Clone the Repository
 ```bash
@@ -80,14 +82,10 @@ php artisan key:generate
 ```
 
 ### Step 4: Database Setup
-Edit `.env` file with your database credentials:
+Edit `.env` file with your database configuration:
 ```env
-DB_CONNECTION=mysql
-DB_HOST=127.0.0.1
-DB_PORT=3306
-DB_DATABASE=rms
-DB_USERNAME=root
-DB_PASSWORD=your_password
+DB_CONNECTION=sqlite
+# DB_DATABASE is automatically set to database/database.sqlite
 
 SCHOOL_NAME="Your School Name"
 ```
@@ -96,6 +94,8 @@ Run migrations:
 ```bash
 php artisan migrate
 ```
+
+> **For MySQL:** If you prefer MySQL for production, update `.env` with MySQL credentials and see [MIGRATION_GUIDE.md](MIGRATION_GUIDE.md)
 
 ### Step 5: Seed Database (Optional)
 ```bash
