@@ -1,6 +1,10 @@
 #!/bin/bash
 set -e
 
+# Force SQLite connection
+export DB_CONNECTION=sqlite
+export DB_DATABASE=/var/www/html/database/database.sqlite
+
 # Create database file if it doesn't exist
 if [ ! -f /var/www/html/database/database.sqlite ]; then
     echo "Creating database.sqlite..."
