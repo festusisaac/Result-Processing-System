@@ -281,9 +281,9 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 👨‍💻 Author
 
-**Your Name**
-- GitHub: [@yourusername](https://github.com/yourusername)
-- Email: your.email@example.com
+**Festus Isaac**
+- GitHub: [@festus-cell](https://github.com/festus-cell)
+- Email: festusisaac848@gmail.com
 
 ## 🙏 Acknowledgments
 
