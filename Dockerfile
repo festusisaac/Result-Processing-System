@@ -13,7 +13,8 @@ RUN apt-get update && apt-get install -y \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
     sqlite3 \
-    libsqlite3-dev
+    libsqlite3-dev \
+    pkg-config
 
 # Clear cache
 RUN apt-get clean && rm -rf /var/lib/apt/lists/*
@@ -21,7 +22,8 @@ RUN apt-get clean && rm -rf /var/lib/apt/lists/*
 # Install PHP extensions
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd \
-    && docker-php-ext-install pdo pdo_sqlite pdo_mysql mbstring exif pcntl bcmath opcache xml zip
+    && docker-php-ext-install pdo pdo_mysql mbstring exif pcntl bcmath opcache xml zip \
+    && docker-php-ext-install pdo_sqlite
 
 # Verify GD is installed (Critical step)
 RUN php -r "if(!extension_loaded('gd')) { echo 'GD not loaded'; exit(1); }"
