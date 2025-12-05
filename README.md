@@ -1,4 +1,4 @@
- 🎓 RMS - Result Management System
+# 🎓 RMS - Result Management System
 
 A comprehensive web-based Result Management System designed for schools to efficiently manage student records, academic results, attendance, and generate professional report cards.
 
