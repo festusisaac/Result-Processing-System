@@ -13,7 +13,7 @@
 <div class="space-y-6">
     {{-- Active Session Banner --}}
     @if($activeSession)
-    <div class="bg-gradient-to-r from-indigo-600 to-purple-600 rounded-lg shadow-lg p-6 text-white">
+    <div class="rounded-lg shadow-lg p-6 text-white" style="background: linear-gradient(to right, #4F46E5, #9333EA);">
         <div class="flex items-center justify-between flex-wrap gap-4">
             <div>
                 <div class="flex items-center gap-2 mb-1">
