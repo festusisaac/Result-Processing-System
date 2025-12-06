@@ -23,7 +23,7 @@ class ReportPdfController extends Controller
             $term = Term::find($termId);
             if ($term && strtolower($term->result_status) !== 'published') {
                 $user = auth()->user();
-                $isPrivileged = $user && ( ($user->role === 'admin') || ($user->isTeacher && $user->isTeacher()) );
+                $isPrivileged = $user && ( ($user->role === 'admin') || $user->isTeacher() );
                 if (! $isPrivileged) {
                     return response()->view('reports.unpublished', ['term' => $term], 403);
                 }

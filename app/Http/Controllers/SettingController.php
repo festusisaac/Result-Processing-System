@@ -23,6 +23,11 @@ class SettingController extends Controller
      */
     public function update(Request $request)
     {
+        // Only admin can update school settings
+        if (!Auth::user()->isAdmin()) {
+            abort(403);
+        }
+
         $request->validate([
             'school_name' => 'required|string|max:255',
             'school_address' => 'nullable|string|max:500',

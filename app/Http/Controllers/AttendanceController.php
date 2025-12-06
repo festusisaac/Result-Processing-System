@@ -13,7 +13,13 @@ class AttendanceController extends Controller
 {
     public function attendance()
     {
-        $classes = ClassRoom::orderBy('name')->get();
+        if (auth()->user()->isTeacher()) {
+            $assignedClassId = auth()->user()->getAssignedClassId();
+            $classes = ClassRoom::where('id', $assignedClassId)->orderBy('name')->get();
+        } else {
+            $classes = ClassRoom::orderBy('name')->get();
+        }
+        
         $terms = Term::orderBy('term_name')->get();
 
         return view('attendance.index', compact('classes', 'terms'));
@@ -25,6 +31,14 @@ class AttendanceController extends Controller
             'class_id' => 'required|exists:classes,id',
             'term_id' => 'required|exists:terms,id'
         ]);
+
+        // Teachers can only fetch students for their assigned class
+        if (auth()->user()->isTeacher()) {
+            $assignedClassId = auth()->user()->getAssignedClassId();
+            if ($request->class_id !== $assignedClassId) {
+                return response()->json(['error' => 'Unauthorized access to class'], 403);
+            }
+        }
 
         $students = Student::where('class_id', $request->class_id)
             ->when($request->search, function($query) use ($request) {

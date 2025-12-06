@@ -6,9 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 
+use App\Traits\Auditable;
+
 class ScratchCard extends Model
 {
-    use HasFactory;
+    use HasFactory, Auditable;
 
     public $incrementing = false;
     protected $keyType = 'string';

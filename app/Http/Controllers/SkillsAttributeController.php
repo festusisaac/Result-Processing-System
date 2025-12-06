@@ -14,7 +14,13 @@ class SkillsAttributeController extends Controller
 {
     public function skills()
     {
-        $classes = ClassRoom::orderBy('name')->get();
+        if (auth()->user()->isTeacher()) {
+            $assignedClassId = auth()->user()->getAssignedClassId();
+            $classes = ClassRoom::where('id', $assignedClassId)->orderBy('name')->get();
+        } else {
+            $classes = ClassRoom::orderBy('name')->get();
+        }
+        
         $terms = Term::orderBy('term_name')->get();
         $skillAttributes = SkillsAttribute::where('slug', 'not like', 'psychomotor-%')
             ->orderBy('name')
@@ -29,6 +35,14 @@ class SkillsAttributeController extends Controller
             'class_id' => 'required|exists:classes,id',
             'term_id' => 'required|exists:terms,id'
         ]);
+
+        // Teachers can only fetch students for their assigned class
+        if (auth()->user()->isTeacher()) {
+            $assignedClassId = auth()->user()->getAssignedClassId();
+            if ($request->class_id !== $assignedClassId) {
+                return response()->json(['error' => 'Unauthorized access to class'], 403);
+            }
+        }
 
         $students = Student::where('class_id', $request->class_id)
             ->when($request->search, function($query) use ($request) {
@@ -66,6 +80,14 @@ class SkillsAttributeController extends Controller
             'skills' => 'required|array'
         ]);
 
+        // Teachers can only store skills for their assigned class
+        if (auth()->user()->isTeacher()) {
+            $assignedClassId = auth()->user()->getAssignedClassId();
+            if ($request->class_id !== $assignedClassId) {
+                return response()->json(['error' => 'Unauthorized access to class'], 403);
+            }
+        }
+
         DB::beginTransaction();
         try {
             foreach ($request->skills as $studentId => $skillsData) {
@@ -98,7 +120,13 @@ class SkillsAttributeController extends Controller
     // Psychomotor Skills Management
     public function psychomotorSkills()
     {
-        $classes = ClassRoom::orderBy('name')->get();
+        if (auth()->user()->isTeacher()) {
+            $assignedClassId = auth()->user()->getAssignedClassId();
+            $classes = ClassRoom::where('id', $assignedClassId)->orderBy('name')->get();
+        } else {
+            $classes = ClassRoom::orderBy('name')->get();
+        }
+
         $terms = Term::orderBy('term_name')->get();
         $psychomotorSkills = SkillsAttribute::where('slug', 'like', 'psychomotor-%')
             ->orderBy('name')
@@ -113,6 +141,14 @@ class SkillsAttributeController extends Controller
             'class_id' => 'required|exists:classes,id',
             'term_id' => 'required|exists:terms,id'
         ]);
+
+        // Teachers can only fetch students for their assigned class
+        if (auth()->user()->isTeacher()) {
+            $assignedClassId = auth()->user()->getAssignedClassId();
+            if ($request->class_id !== $assignedClassId) {
+                return response()->json(['error' => 'Unauthorized access to class'], 403);
+            }
+        }
 
         // Get psychomotor skill IDs
         $psychomotorSkillIds = SkillsAttribute::where('slug', 'like', 'psychomotor-%')
@@ -152,6 +188,14 @@ class SkillsAttributeController extends Controller
             'term_id' => 'required|exists:terms,id',
             'skills' => 'required|array'
         ]);
+
+        // Teachers can only store skills for their assigned class
+        if (auth()->user()->isTeacher()) {
+            $assignedClassId = auth()->user()->getAssignedClassId();
+            if ($request->class_id !== $assignedClassId) {
+                return response()->json(['error' => 'Unauthorized access to class'], 403);
+            }
+        }
 
         DB::beginTransaction();
         try {

@@ -38,7 +38,7 @@
                     $promoteTarget = \App\Models\ClassRoom::where('name', $promoteToName)->first();
                 }
             @endphp
-            @if($user && ($user->role === 'admin' || ($user->isTeacher && $user->isTeacher())))
+            @if($user && ($user->role === 'admin' || $user->isTeacher()))
                 @if($promoteToName && $promoteTarget)
                     <button id="promote-btn" data-target-name="{{ $promoteTarget->name }}" class="ml-3 px-4 py-2 bg-green-600 text-white rounded">Promote to {{ $promoteTarget->name }}</button>
                 @elseif($promoteToName && ! $promoteTarget)

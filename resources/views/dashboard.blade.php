@@ -318,7 +318,16 @@
                     <div class="flex-1 min-w-0">
                         <p class="text-sm font-medium text-gray-900">{{ $activity->formatted_action ?? $activity->action }}</p>
                         @if($activity->meta)
-                        <p class="text-xs text-gray-500 mt-1">{{ implode(' ', (array)$activity->meta) }}</p>
+                        @php
+                            $meta = (array)$activity->meta;
+                            $scalars = array_filter($meta, function($v) { return is_scalar($v); });
+                            $display = implode(', ', array_map(function($k, $v) { 
+                                return is_numeric($k) ? $v : "$k: $v"; 
+                            }, array_keys($scalars), $scalars));
+                        @endphp
+                        @if(!empty($display))
+                        <p class="text-xs text-gray-500 mt-1">{{ Str::limit($display, 100) }}</p>
+                        @endif
                         @endif
                         <p class="text-xs text-gray-400 mt-1">{{ $activity->created_at->diffForHumans() }}</p>
                     </div>

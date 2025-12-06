@@ -7,6 +7,7 @@
 @section('content')
 <div class="max-w-4xl mx-auto space-y-6">
     <!-- School Settings Form -->
+    @if(auth()->user()->isAdmin())
     <form action="{{ route('settings.update') }}" method="POST" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
         @csrf
         
@@ -84,6 +85,7 @@
             </button>
         </div>
     </form>
+    @endif
 
     <!-- Profile Settings Form -->
     <form action="{{ route('settings.profile.update') }}" method="POST" class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">

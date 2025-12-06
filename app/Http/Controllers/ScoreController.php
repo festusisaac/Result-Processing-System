@@ -20,7 +20,14 @@ class ScoreController extends Controller
 {
     public function scoresheet()
     {
-        $classes = ClassRoom::orderBy('name')->get();
+        // Teachers can only see their assigned class
+        if (auth()->user()->isTeacher()) {
+            $assignedClassId = auth()->user()->getAssignedClassId();
+            $classes = ClassRoom::where('id', $assignedClassId)->orderBy('name')->get();
+        } else {
+            $classes = ClassRoom::orderBy('name')->get();
+        }
+        
         $subjects = Subject::orderBy('name')->get();
         
         $terms = Term::select('id', 'term_name')
@@ -157,7 +164,13 @@ class ScoreController extends Controller
     
     public function broadsheet()
     {
-        $classes = ClassRoom::orderBy('name')->get();
+        // Teachers can only see their assigned class
+        if (auth()->user()->isTeacher()) {
+            $assignedClassId = auth()->user()->getAssignedClassId();
+            $classes = ClassRoom::where('id', $assignedClassId)->orderBy('name')->get();
+        } else {
+            $classes = ClassRoom::orderBy('name')->get();
+        }
         
         $terms = Term::select('id', 'term_name')
             ->where('term_name', 'LIKE', '%TERM%')
@@ -462,7 +475,26 @@ class ScoreController extends Controller
 
     public function results()
     {
-        $classes = ClassRoom::with('students')->orderBy('name')->get();
+        // Teachers can only see their assigned class
+        if (auth()->user()->isTeacher()) {
+            $assignedClassId = auth()->user()->getAssignedClassId();
+            
+            if (!$assignedClassId) {
+                // Teacher has no assigned class, show empty result
+                return view('results.index', [
+                    'classes' => collect(),
+                    'terms' => collect(),
+                    'sessions' => collect()
+                ]);
+            }
+            
+            $classes = ClassRoom::with('students')
+                ->where('id', $assignedClassId)
+                ->orderBy('name')
+                ->get();
+        } else {
+            $classes = ClassRoom::with('students')->orderBy('name')->get();
+        }
         
         // Load terms with custom ordering (FIRST, SECOND, THIRD)
         // Filter to only include terms with "TERM" in the name to exclude legacy data like "FIRST"

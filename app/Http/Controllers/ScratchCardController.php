@@ -100,6 +100,14 @@ class ScratchCardController extends Controller
 
             ScratchCard::insert($cards);
 
+            // Log the bulk generation action manually since insert() doesn't fire events
+            \App\Models\AuditLog::log("Generated {$request->quantity} Scratch Cards", [
+                'batch_id' => $batch->id,
+                'batch_name' => $batch->name,
+                'quantity' => $request->quantity,
+                'value' => $request->value
+            ]);
+
  return response()->json([
     'message' => "{$request->quantity} scratch cards generated successfully in batch: {$batch->name}",
     'cards' => $cards,

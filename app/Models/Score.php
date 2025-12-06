@@ -6,16 +6,19 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Traits\Auditable;
 
 class Score extends Model
 {
-    use HasFactory, SoftDeletes;
+    use HasFactory, SoftDeletes, Auditable;
 
     public $incrementing = false;
     protected $keyType = 'string';
 
     protected static function booted()
     {
+        // Call parent boot if needed, but here we just have local boot logic
+        
         static::creating(function ($model) {
             if (empty($model->id)) {
                 $model->id = (string) Str::uuid();
@@ -60,5 +63,14 @@ class Score extends Model
     public function term()
     {
         return $this->belongsTo(Term::class);
+    }
+
+    // Optional: Descriptive audit log
+    public function getAuditDescription($action)
+    {
+        $subjectName = $this->subject ? $this->subject->name : 'Unknown Subject';
+        $studentName = $this->student ? $this->student->full_name : 'Unknown Student';
+        
+        return "{$action} Score: {$studentName} - {$subjectName}";
     }
 }

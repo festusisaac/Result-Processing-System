@@ -17,6 +17,26 @@ class StudentController extends Controller
     {
         $query = Student::with(['classRoom', 'session']);
 
+        // If user is a teacher, restrict to their assigned class only
+        if (auth()->user()->isTeacher()) {
+            $assignedClassId = auth()->user()->getAssignedClassId();
+            
+            if (!$assignedClassId) {
+                // Teacher has no assigned class, show empty result
+                $students = collect();
+                $classes = collect();
+                return view('students.index', [
+                    'students' => new \Illuminate\Pagination\LengthAwarePaginator([], 0, 20),
+                    'q' => '',
+                    'classes' => $classes,
+                    'classId' => null
+                ]);
+            }
+            
+            // Filter to teacher's class only
+            $query->where('class_id', $assignedClassId);
+        }
+
         // text query (name or admission number)
         $q = request()->get('q', '');
         if (trim($q) !== '') {
@@ -29,9 +49,9 @@ class StudentController extends Controller
             });
         }
 
-        // explicit class filter
+        // explicit class filter (only for admins)
         $classId = request()->get('class_id');
-        if ($classId) {
+        if ($classId && auth()->user()->isAdmin()) {
             $query->where('class_id', $classId);
         }
 
@@ -40,7 +60,14 @@ class StudentController extends Controller
             ->appends(request()->only(['q', 'class_id']));
 
         // list of classes for filter dropdown
-        $classes = \App\Models\ClassRoom::orderBy('name')->get();
+        if (auth()->user()->isTeacher()) {
+            // Teachers only see their assigned class
+            $assignedClassId = auth()->user()->getAssignedClassId();
+            $classes = \App\Models\ClassRoom::where('id', $assignedClassId)->get();
+        } else {
+            // Admins and accountants see all classes
+            $classes = \App\Models\ClassRoom::orderBy('name')->get();
+        }
 
         if (request()->wantsJson()) {
             return response()->json($students);
@@ -200,6 +227,14 @@ class StudentController extends Controller
 
     public function show(Student $student)
     {
+        // Teachers can only view students from their assigned class
+        if (auth()->user()->isTeacher()) {
+            $assignedClassId = auth()->user()->getAssignedClassId();
+            if ($student->class_id !== $assignedClassId) {
+                abort(403, 'You can only access students from your assigned class.');
+            }
+        }
+
         $student = $student->load(['classRoom', 'session', 'scores', 'attendance']);
 
         if (request()->wantsJson()) {
@@ -211,6 +246,14 @@ class StudentController extends Controller
 
     public function edit(Student $student)
     {
+        // Teachers can only edit students from their assigned class
+        if (auth()->user()->isTeacher()) {
+            $assignedClassId = auth()->user()->getAssignedClassId();
+            if ($student->class_id !== $assignedClassId) {
+                abort(403, 'You can only edit students from your assigned class.');
+            }
+        }
+
         $classes = ClassRoom::orderBy('name')->get();
         $sessions = AcademicSession::orderBy('name')->get();
 

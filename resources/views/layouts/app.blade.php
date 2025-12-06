@@ -64,14 +64,17 @@
                         <span x-show="sidebarOpen" x-transition class="ml-3 font-medium">Dashboard</span>
                     </a>
 
-                    <!-- Students -->
+                    <!-- Students (Admin + Teacher) -->
+                    @if(auth()->user()->hasRole(['admin', 'teacher']))
                     <a href="{{ route('students.index') }}" 
                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg group {{ request()->routeIs('students.*') ? 'bg-indigo-600 text-white shadow-lg' : '' }}">
                         <i class="fas fa-user-graduate w-5 text-lg {{ request()->routeIs('students.*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }}"></i>
                         <span x-show="sidebarOpen" x-transition class="ml-3 font-medium">Students</span>
                     </a>
+                    @endif
 
-                    <!-- Academic Section -->
+                    <!-- Academic Section (Admin Only) -->
+                    @if(auth()->user()->isAdmin())
                     <div class="space-y-1">
                         <button @click="openMenus['academic'] = !openMenus['academic']" 
                                 class="flex items-center justify-between w-full px-4 py-3 text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg group {{ request()->routeIs('sessions.*') || request()->routeIs('classes.*') || request()->routeIs('subjects.*') || request()->routeIs('subject-groups.*') || request()->routeIs('teachers.*') || request()->routeIs('terms.*') ? 'bg-indigo-600 text-white shadow-lg' : '' }}">
@@ -97,15 +100,17 @@
                                 <i class="fas fa-book w-4 mr-2"></i> Subjects
                             </a>
                             <a href="{{ route('teachers.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('teachers.*') ? 'bg-sidebar-hover text-white' : '' }}">
-                                <i class="fas fa-chalkboard-teacher w-4 mr-2"></i> Teachers
+                                <i class="fas fa-users w-4 mr-2"></i> Staffs
                             </a>
                             <a href="{{ route('terms.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('terms.*') ? 'bg-sidebar-hover text-white' : '' }}">
                                 <i class="fas fa-calendar-week w-4 mr-2"></i> Terms
                             </a>
                         </div>
                     </div>
+                    @endif
 
-                    <!-- Assessment Section -->
+                    <!-- Assessment Section (Admin + Teacher) -->
+                    @if(auth()->user()->hasRole(['admin', 'teacher']))
                     <div class="space-y-1">
                         <button @click="openMenus['assessment'] = !openMenus['assessment']" 
                                 class="flex items-center justify-between w-full px-4 py-3 text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg group {{ request()->routeIs('scores.*') || request()->routeIs('attendance.*') || request()->routeIs('skills.*') || request()->routeIs('psychomotor-skills.*') ? 'bg-indigo-600 text-white shadow-lg' : '' }}">
@@ -135,11 +140,13 @@
                             </a>
                         </div>
                     </div>
+                    @endif
 
-                    <!-- Reports Section -->
+                    <!-- Reports Section (Admin + Teacher) -->
+                    @if(auth()->user()->hasRole(['admin', 'teacher']))
                     <div class="space-y-1">
                         <button @click="openMenus['reports'] = !openMenus['reports']" 
-                                class="flex items-center justify-between w-full px-4 py-3 text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg group {{ request()->routeIs('results.*') || request()->routeIs('report-settings.*') ? 'bg-indigo-600 text-white shadow-lg' : '' }}">
+                                class="flex items-center justify-between w-full px-4 py-3 text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg group {{ request()->routeIs('results.*') || request()->routeIs('report-settings.*') || request()->routeIs('comments.*') ? 'bg-indigo-600 text-white shadow-lg' : '' }}">
                             <div class="flex items-center">
                                 <i class="fas fa-file-alt w-5 text-lg {{ request()->routeIs('results.*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }}"></i>
                                 <span x-show="sidebarOpen" x-transition class="ml-3 font-medium">Reports</span>
@@ -152,28 +159,40 @@
                             <a href="{{ route('results.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('results.*') ? 'bg-sidebar-hover text-white' : '' }}">
                                 <i class="fas fa-poll w-4 mr-2"></i> View Results
                             </a>
+                            @if(auth()->user()->isAdmin())
                             <a href="{{ route('reports.result_management') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('reports.result_management') ? 'bg-sidebar-hover text-white' : '' }}">
                                 <i class="fas fa-cogs w-4 mr-2"></i> Result Management
                             </a>
+                            @endif
+                            <a href="{{ route('comments.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('comments.*') ? 'bg-sidebar-hover text-white' : '' }}">
+                                <i class="fas fa-comment w-4 mr-2"></i> Comments
+                            </a>
+                            @if(auth()->user()->isAdmin())
                             <a href="{{ route('report-settings.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('report-settings.*') ? 'bg-sidebar-hover text-white' : '' }}">
                                 <i class="fas fa-sliders-h w-4 mr-2"></i> Report Settings
                             </a>
+                            @endif
                         </div>
                     </div>
+                    @endif
 
-                    <!-- Blog Management -->
+                    <!-- Blog Management (Admin Only) -->
+                    @if(auth()->user()->isAdmin())
                     <a href="{{ route('blog.index') }}" 
                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg group {{ request()->routeIs('blog.*') ? 'bg-indigo-600 text-white shadow-lg' : '' }}">
                         <i class="fas fa-newspaper w-5 text-lg {{ request()->routeIs('blog.*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }}"></i>
                         <span x-show="sidebarOpen" x-transition class="ml-3 font-medium">Blog Management</span>
                     </a>
+                    @endif
 
-                    <!-- Scratch Cards -->
+                    <!-- Scratch Cards (Admin + Accountant) -->
+                    @if(auth()->user()->hasRole(['admin', 'accountant']))
                     <a href="{{ route('scratch-cards.index') }}" 
                        class="flex items-center px-4 py-3 text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg group {{ request()->routeIs('scratch-cards.*') ? 'bg-indigo-600 text-white shadow-lg' : '' }}">
                         <i class="fas fa-ticket-alt w-5 text-lg {{ request()->routeIs('scratch-cards.*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }}"></i>
                         <span x-show="sidebarOpen" x-transition class="ml-3 font-medium">Scratch Cards</span>
                     </a>
+                    @endif
 
                     <!-- Settings -->
                     <a href="{{ route('settings.index') }}" 
@@ -181,6 +200,15 @@
                         <i class="fas fa-cog w-5 text-lg {{ request()->routeIs('settings.*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }}"></i>
                         <span x-show="sidebarOpen" x-transition class="ml-3 font-medium">Settings</span>
                     </a>
+
+                    @if(auth()->user()->isAdmin())
+                    <a href="{{ route('audit-logs.index') }}" 
+                       class="flex items-center px-4 py-3 text-gray-300 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg group {{ request()->routeIs('audit-logs.*') ? 'bg-indigo-600 text-white shadow-lg' : '' }}">
+                        <i class="fas fa-history w-5 text-lg {{ request()->routeIs('audit-logs.*') ? 'text-white' : 'text-gray-400 group-hover:text-white' }}"></i>
+                        <span x-show="sidebarOpen" x-transition class="ml-3 font-medium">Activity Logs</span>
+                    </a>
+                    @endif
+
                 </nav>
 
                 <!-- User Profile -->
@@ -193,7 +221,15 @@
                         </div>
                         <div x-show="sidebarOpen" x-transition class="ml-3 flex-1 min-w-0">
                             <p class="text-sm font-medium text-white truncate">{{ Auth::user()->name }}</p>
-                            <p class="text-xs text-gray-400 truncate">{{ Auth::user()->email }}</p>
+                            <div class="flex items-center gap-2 mt-1">
+                                <span class="text-xs px-2 py-0.5 rounded-full 
+                                    {{ Auth::user()->isAdmin() ? 'bg-red-500/20 text-red-300' : '' }}
+                                    {{ Auth::user()->isTeacher() ? 'bg-blue-500/20 text-blue-300' : '' }}
+                                    {{ Auth::user()->isAccountant() ? 'bg-green-500/20 text-green-300' : '' }}
+                                ">
+                                    {{ Auth::user()->getRoleDisplayName() }}
+                                </span>
+                            </div>
                         </div>
                         <i x-show="sidebarOpen" x-transition class="fas fa-chevron-up text-gray-400 text-sm transition-transform duration-200" :class="open ? '' : 'rotate-180'"></i>
                     </button>

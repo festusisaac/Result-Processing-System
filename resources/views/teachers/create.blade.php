@@ -1,11 +1,11 @@
 @extends('layouts.app')
 
-@section('title', 'Create Teacher')
+@section('title', 'Create Staff')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="mb-6">
-        <h1 class="text-2xl font-semibold text-gray-900">Create New Teacher</h1>
+        <h1 class="text-2xl font-semibold text-gray-900">Create New Staff Member</h1>
     </div>
 
     <div class="bg-white shadow overflow-hidden sm:rounded-lg">
@@ -13,7 +13,7 @@
             @csrf
 
             <div>
-                <label for="name" class="block text-sm font-medium text-gray-700">Name</label>
+                <label for="name" class="block text-sm font-medium text-gray-700">Name *</label>
                 <div class="mt-1">
                     <input type="text" name="name" id="name" value="{{ old('name') }}"
                         class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-3 @error('name') border-red-300 @enderror"
@@ -25,7 +25,7 @@
             </div>
 
             <div>
-                <label for="email" class="block text-sm font-medium text-gray-700">Email Address</label>
+                <label for="email" class="block text-sm font-medium text-gray-700">Email Address *</label>
                 <div class="mt-1">
                     <input type="email" name="email" id="email" value="{{ old('email') }}"
                         class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-3 @error('email') border-red-300 @enderror"
@@ -33,6 +33,47 @@
                     @error('email')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
+                </div>
+            </div>
+
+            <div>
+                <label for="role" class="block text-sm font-medium text-gray-700">Role *</label>
+                <div class="mt-1">
+                    <select name="role" id="role"
+                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-3 @error('role') border-red-300 @enderror"
+                        required>
+                        <option value="">Select Role</option>
+                        @foreach($roles as $role)
+                            <option value="{{ $role }}" {{ old('role') == $role ? 'selected' : '' }}>
+                                {{ \App\Enums\UserRole::getDisplayName($role) }}
+                            </option>
+                        @endforeach
+                    </select>
+                    @error('role')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div>
+                <label for="password" class="block text-sm font-medium text-gray-700">Password *</label>
+                <div class="mt-1">
+                    <input type="password" name="password" id="password"
+                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-3 @error('password') border-red-300 @enderror"
+                        required>
+                    <p class="mt-1 text-xs text-gray-500">Minimum 8 characters</p>
+                    @error('password')
+                    <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+
+            <div>
+                <label for="password_confirmation" class="block text-sm font-medium text-gray-700">Confirm Password *</label>
+                <div class="mt-1">
+                    <input type="password" name="password_confirmation" id="password_confirmation"
+                        class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-3"
+                        required>
                 </div>
             </div>
 
@@ -68,7 +109,7 @@
                 <div class="mt-1">
                     <input type="file" name="signature" id="signature" accept="image/*"
                         class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md py-3 @error('signature') border-red-300 @enderror">
-                    <p class="mt-1 text-xs text-gray-500">Upload teacher's signature image (PNG, JPG, max 2MB)</p>
+                    <p class="mt-1 text-xs text-gray-500">Upload signature image (PNG, JPG, max 2MB)</p>
                     @error('signature')
                     <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                     @enderror
@@ -80,7 +121,7 @@
                     Cancel
                 </a>
                 <button type="submit" class="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700">
-                    Create Teacher
+                    Create Staff
                 </button>
             </div>
         </form>

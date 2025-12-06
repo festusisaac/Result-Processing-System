@@ -22,12 +22,14 @@
                     <a href="{{ route('students.index') }}" class="ml-2 px-3 py-2 bg-gray-200 text-gray-700 rounded-md">Clear</a>
                 @endif
             </form>
+            @if(auth()->user()->isAdmin())
             <a href="{{ route('students.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md">Add Student</a>
+            @endif
         </div>
     </div>
 
     @php $user = auth()->user(); @endphp
-    @if($user && ($user->role === 'admin' || ($user->isTeacher && $user->isTeacher())))
+    @if($user && ($user->role === 'admin' || $user->isTeacher()))
     <div class="mb-4 flex gap-2">
         <button id="promote-selected-btn" class="px-4 py-2 bg-green-600 text-white rounded-md" style="display:none;">Promote Selected</button>
         <span id="selected-count" class="text-sm text-gray-600" style="display:none;">Selected: <strong>0</strong></span>
@@ -39,7 +41,7 @@
             <thead class="bg-gray-50">
                 <tr>
                     @php $user = auth()->user(); @endphp
-                    @if($user && ($user->role === 'admin' || ($user->isTeacher && $user->isTeacher())))
+                    @if($user && ($user->role === 'admin' || $user->isTeacher()))
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"><input type="checkbox" id="select-all" /></th>
                     @endif
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Adm No</th>
@@ -53,7 +55,7 @@
                 @foreach($students as $student)
                 <tr>
                     @php $user = auth()->user(); @endphp
-                    @if($user && ($user->role === 'admin' || ($user->isTeacher && $user->isTeacher())))
+                    @if($user && ($user->role === 'admin' || $user->isTeacher()))
                     <td class="px-6 py-4 whitespace-nowrap"><input type="checkbox" class="student-checkbox" value="{{ $student->id }}" /></td>
                     @endif
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $student->adm_no }}</td>
@@ -62,11 +64,13 @@
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $student->session->name ?? '-' }}</td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-right">
                         <a href="{{ route('students.edit', $student) }}" class="text-indigo-600 hover:text-indigo-900 mr-3">Edit</a>
+                        @if(auth()->user()->isAdmin())
                         <form action="{{ route('students.destroy', $student) }}" method="POST" class="inline-block js-confirm-delete" data-confirm="Delete this student?">
                             @csrf
                             @method('DELETE')
                             <button type="submit" class="text-red-600 hover:text-red-900">Delete</button>
                         </form>
+                        @endif
                     </td>
                 </tr>
                 @endforeach

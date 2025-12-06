@@ -1,14 +1,14 @@
 @extends('layouts.app')
 
-@section('title', 'Teachers')
-@section('page-title', 'Teachers')
-@section('page-description', 'Manage teacher information and assignments')
+@section('title', 'Staffs')
+@section('page-title', 'Staffs')
+@section('page-description', 'Manage staff members and their roles')
 
 @section('content')
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
     <div class="flex items-center justify-between py-6">
-        <h1 class="text-2xl font-semibold text-gray-900">Teachers</h1>
-        <a href="{{ route('teachers.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md">Add Teacher</a>
+        <h1 class="text-2xl font-semibold text-gray-900">Staffs</h1>
+        <a href="{{ route('teachers.create') }}" class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-md">Add Staff</a>
     </div>
     @if (session('success'))
         <div class="rounded-md bg-green-50 p-4 mb-4">
@@ -31,6 +31,7 @@
                 <tr>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
                     <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Class</th>
                     <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Signature</th>
                     <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
@@ -52,6 +53,15 @@
                         </div>
                     </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{{ $teacher->email }}</td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm">
+                        <span class="px-2 py-1 text-xs rounded-full 
+                            {{ $teacher->isAdmin() ? 'bg-red-100 text-red-800' : '' }}
+                            {{ $teacher->isTeacher() ? 'bg-blue-100 text-blue-800' : '' }}
+                            {{ $teacher->isAccountant() ? 'bg-green-100 text-green-800' : '' }}
+                        ">
+                            {{ $teacher->getRoleDisplayName() }}
+                        </span>
+                    </td>
                     <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                         {{ optional($teacher->classRoom)->name ?? 'Not Assigned' }}
                     </td>
@@ -73,8 +83,8 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="5" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
-                        No teachers found.
+                    <td colspan="6" class="px-6 py-4 whitespace-nowrap text-sm text-center text-gray-500">
+                        No staff members found.
                     </td>
                 </tr>
                 @endforelse
