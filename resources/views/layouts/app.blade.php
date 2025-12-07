@@ -24,13 +24,24 @@
         }
     </script>
     @stack('styles')
-</head>
+    
+    <!-- PWA -->
+    <link rel="manifest" href="{{ asset('manifest.json') }}">
+    <meta name="theme-color" content="#4F46E5">
+    <link rel="apple-touch-icon" href="{{ asset('images/school-logo.png') }}">
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/sw.js');
+            });
+        }
+    </script>
 <body class="bg-gray-50 font-sans antialiased">
     @auth
         <div class="flex h-screen overflow-hidden" x-data="{ sidebarOpen: true, openMenus: {} }">
             <!-- Sidebar -->
             <aside :class="sidebarOpen ? 'w-64' : 'w-20'" 
-                   class="bg-sidebar flex-shrink-0 flex flex-col shadow-xl transition-all duration-300 ease-in-out">
+                   class="hidden md:flex bg-sidebar flex-shrink-0 flex-col shadow-xl transition-all duration-300 ease-in-out">
                 <!-- Logo with Toggle Button -->
                 <div class="flex items-center justify-between h-16 bg-gradient-to-r from-indigo-600 to-purple-600 shadow-md px-4">
                     <a href="{{ route('dashboard') }}" class="flex items-center space-x-3 text-white">
@@ -156,9 +167,11 @@
                         <div x-show="openMenus['reports'] && sidebarOpen" 
                              x-collapse 
                              class="ml-4 space-y-1 border-l-2 border-gray-700 pl-4">
+                            @if(auth()->user()->isAdmin())
                             <a href="{{ route('results.index') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('results.*') ? 'bg-sidebar-hover text-white' : '' }}">
                                 <i class="fas fa-poll w-4 mr-2"></i> View Results
                             </a>
+                            @endif
                             @if(auth()->user()->isAdmin())
                             <a href="{{ route('reports.result_management') }}" class="flex items-center px-3 py-2 text-sm text-gray-400 hover:bg-sidebar-hover hover:text-white transition-all duration-200 rounded-lg {{ request()->routeIs('reports.result_management') ? 'bg-sidebar-hover text-white' : '' }}">
                                 <i class="fas fa-cogs w-4 mr-2"></i> Result Management
@@ -247,7 +260,7 @@
             <!-- Main Content -->
             <div class="flex-1 flex flex-col overflow-hidden">
                 <!-- Top Bar with School Name -->
-                <header class="bg-white shadow-sm z-10 border-b border-gray-200">
+                <header class="bg-white shadow-sm z-10 border-b border-gray-200 hidden md:flex h-16 items-center justify-between px-6">
                     <div class="px-6 py-4 flex items-center justify-between">
                         <div class="flex items-center gap-4">
                             <!-- School Name -->
@@ -265,7 +278,7 @@
                 </header>
 
                 <!-- Page Content -->
-                <main class="flex-1 overflow-y-auto bg-gray-50 p-6">
+                <main class="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6 pb-24 md:pb-6">
                     @yield('content')
 
                     {{-- Global toast for success messages --}}
@@ -303,6 +316,8 @@
     @endauth
 
     @stack('scripts')
+    <!-- Alpine Plugins -->
+    <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
     <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
     <!-- Global confirmation modal + toast (used across the app) -->
     <div id="confirm-modal" class="fixed inset-0 z-50 hidden items-center justify-center bg-black bg-opacity-40">
@@ -397,5 +412,36 @@
             document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !modal.classList.contains('hidden')) hideModal(); });
         })();
     </script>
+    <div id="toast-container" class="fixed top-4 right-4 z-50 space-y-2"></div>
+
+    <!-- Mobile Bottom Navigation -->
+    <div class="md:hidden fixed bottom-0 left-0 right-0 bg-white/90 backdrop-blur-md border-t border-gray-200 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.1)] z-50 pb-safe">
+        <div class="flex justify-around items-center h-16 px-2">
+            <a href="{{ route('dashboard') }}" class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors {{ request()->routeIs('dashboard') ? 'text-indigo-600' : 'text-gray-500' }}">
+                <i class="fas fa-home text-lg {{ request()->routeIs('dashboard') ? 'scale-110' : '' }} transition-transform"></i>
+                <span class="text-[10px] font-medium">Home</span>
+            </a>
+            
+            <a href="{{ route('scores.scoresheet') }}" class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors {{ request()->routeIs('scores.*') ? 'text-indigo-600' : 'text-gray-500' }}">
+                <i class="fas fa-table text-lg {{ request()->routeIs('scores.*') ? 'scale-110' : '' }} transition-transform"></i>
+                <span class="text-[10px] font-medium">Scores</span>
+            </a>
+
+            <a href="{{ route('attendance.index') }}" class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors {{ request()->routeIs('attendance.*') ? 'text-indigo-600' : 'text-gray-500' }}">
+                <i class="fas fa-check-circle text-lg {{ request()->routeIs('attendance.*') ? 'scale-110' : '' }} transition-transform"></i>
+                <span class="text-[10px] font-medium">Attend</span>
+            </a>
+
+            <a href="{{ route('skills.index') }}" class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors {{ request()->routeIs('skills.*') || request()->routeIs('psychomotor-skills.*') ? 'text-indigo-600' : 'text-gray-500' }}">
+                <i class="fas fa-star text-lg {{ request()->routeIs('skills.*') || request()->routeIs('psychomotor-skills.*') ? 'scale-110' : '' }} transition-transform"></i>
+                <span class="text-[10px] font-medium">Skills</span>
+            </a>
+            
+             <a href="{{ route('settings.index') }}" class="flex flex-col items-center justify-center w-full h-full space-y-1 transition-colors {{ request()->routeIs('settings.*') ? 'text-indigo-600' : 'text-gray-500' }}">
+                <i class="fas fa-user-circle text-lg {{ request()->routeIs('settings.*') ? 'scale-110' : '' }} transition-transform"></i>
+                <span class="text-[10px] font-medium">Profile</span>
+            </a>
+        </div>
+    </div>
 </body>
 </html>

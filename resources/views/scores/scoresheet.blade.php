@@ -3,7 +3,7 @@
 @section('content')
 <div class="container mx-auto px-4 py-6">
     <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-2xl font-bold mb-6">Marks / Scores</h2>
+        <h2 class="text-2xl font-bold mb-6 hidden md:block">Marks / Scores</h2>
 
         <!-- Filters -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
@@ -48,8 +48,8 @@
 
         <form id="scoreForm" method="POST" action="{{ route('scores.store-bulk') }}">
             @csrf
-            <!-- Scores Table -->
-            <div class="overflow-x-auto">
+            <!-- Scores Table (Desktop) -->
+            <div class="overflow-x-auto hidden md:block">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead>
                         <tr>
@@ -60,13 +60,13 @@
                                 Name
                             </th>
                             <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                CA1
+                                CA1 (20)
                             </th>
                             <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                CA2
+                                CA2 (20)
                             </th>
                             <th class="px-6 py-3 bg-gray-50 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                                Exam
+                                Exam (60)
                             </th>
                         </tr>
                     </thead>
@@ -75,6 +75,12 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Mobile Scores Cards -->
+            <div id="mobileScoresContainer" class="md:hidden space-y-4">
+                <!-- Cards will be populated by JavaScript -->
+            </div>
+
 
             <!-- Action Buttons -->
             <div class="mt-6 flex justify-between">
@@ -110,7 +116,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search');
     const fetchButton = document.getElementById('fetchStudents');
     const tableBody = document.getElementById('scoresTableBody');
+    const mobileContainer = document.getElementById('mobileScoresContainer');
     const scoreForm = document.getElementById('scoreForm');
+
 
     // Fetch students and their scores
     async function fetchStudents() {
@@ -186,6 +194,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Render students table
     function renderStudentsTable(students) {
         tableBody.innerHTML = '';
+        mobileContainer.innerHTML = '';
+        
+        if (students.length === 0) {
+            mobileContainer.innerHTML = '<div class="text-center py-8 text-gray-500">No students found.</div>';
+            tableBody.innerHTML = '<tr><td colspan="5" class="text-center py-4 text-gray-500">No students found.</td></tr>';
+            return;
+        }
         
         students.forEach(student => {
             const row = document.createElement('tr');
@@ -217,7 +232,47 @@ document.addEventListener('DOMContentLoaded', function() {
                 </td>
             `;
             tableBody.appendChild(row);
+
+            // ---------------------------------------------------------
+            // Mobile Card View Rendering
+            // ---------------------------------------------------------
+            const card = document.createElement('div');
+            card.className = "bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100";
+            card.innerHTML = `
+                <div class="flex justify-between items-start mb-3">
+                    <div>
+                        <h3 class="font-bold text-gray-900">${student.full_name}</h3>
+                        <p class="text-xs text-gray-500">${student.adm_no}</p>
+                        <input type="hidden" name="scores[${student.id}][student_id]" value="${student.id}">
+                    </div>
+                </div>
+                <div class="grid grid-cols-3 gap-3">
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">CA1</label>
+                        <input type="number" name="scores[${student.id}][ca1_score]" 
+                               value="${student.score?.ca1_score || ''}"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-center"
+                               placeholder="-" min="0" max="20" step="0.01">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">CA2</label>
+                        <input type="number" name="scores[${student.id}][ca2_score]" 
+                               value="${student.score?.ca2_score || ''}"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-center"
+                               placeholder="-" min="0" max="20" step="0.01">
+                    </div>
+                     <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1">Exam</label>
+                        <input type="number" name="scores[${student.id}][exam_score]" 
+                               value="${student.score?.exam_score || ''}"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-center font-bold"
+                               placeholder="-" min="0" max="60">
+                    </div>
+                </div>
+            `;
+            mobileContainer.appendChild(card);
         });
+
     }
 
     // Event Listeners

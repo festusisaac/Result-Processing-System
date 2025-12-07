@@ -3,7 +3,7 @@
 @section('content')
 <div class="container mx-auto px-4 py-6">
     <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-2xl font-bold mb-6">Attendance</h2>
+        <h2 class="text-2xl font-bold mb-6 hidden md:block">Attendance</h2>
 
         <!-- Filters -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -39,8 +39,8 @@
 
         <form id="attendanceForm" method="POST" action="{{ route('attendance.store-bulk') }}">
             @csrf
-            <!-- Attendance Table -->
-            <div class="overflow-x-auto">
+            <!-- Attendance Table (Desktop) -->
+            <div class="overflow-x-auto hidden md:block">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead>
                         <tr>
@@ -60,6 +60,12 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Mobile Attendance Cards -->
+            <div id="mobileAttendanceContainer" class="md:hidden space-y-4">
+                <!-- Cards will be populated by JavaScript -->
+            </div>
+
 
             <!-- Action Buttons -->
             <div class="mt-6 flex justify-between">
@@ -105,7 +111,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search');
     const fetchButton = document.getElementById('fetchStudents');
     const tableBody = document.getElementById('attendanceTableBody');
+    const mobileContainer = document.getElementById('mobileAttendanceContainer');
     const attendanceForm = document.getElementById('attendanceForm');
+
     const filterStatus = document.getElementById('filterStatus');
     const studentCount = document.getElementById('studentCount');
     let allStudents = [];
@@ -195,6 +203,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Render students table
     function renderStudentsTable(students) {
         tableBody.innerHTML = '';
+        mobileContainer.innerHTML = '';
+        
+        if (students.length === 0) {
+            mobileContainer.innerHTML = '<div class="text-center py-8 text-gray-500">No students found.</div>';
+            tableBody.innerHTML = '<tr><td colspan="3" class="text-center py-4 text-gray-500">No students found.</td></tr>';
+            return;
+        }
         
         students.forEach(student => {
             const row = document.createElement('tr');
@@ -214,7 +229,29 @@ document.addEventListener('DOMContentLoaded', function() {
                 </td>
             `;
             tableBody.appendChild(row);
+
+            // ---------------------------------------------------------
+            // Mobile Card View Rendering
+            // ---------------------------------------------------------
+            const card = document.createElement('div');
+            card.className = "bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100 flex justify-between items-center";
+            card.innerHTML = `
+                <div>
+                    <h3 class="font-bold text-gray-900">${student.full_name}</h3>
+                    <p class="text-xs text-gray-500">${student.adm_no}</p>
+                    <input type="hidden" name="attendance[${student.id}][student_id]" value="${student.id}">
+                </div>
+                <div>
+                     <label class="block text-xs font-medium text-gray-500 mb-1 text-right">Absent Days</label>
+                     <input type="number" name="attendance[${student.id}][no_of_absences]" 
+                           value="${student.attendance?.no_of_absences || ''}"
+                           class="w-24 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-center font-bold text-lg"
+                           min="0" step="1">
+                </div>
+            `;
+            mobileContainer.appendChild(card);
         });
+
     }
 
     // Event Listeners

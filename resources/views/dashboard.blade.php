@@ -25,7 +25,7 @@
                         Active Session
                     </span>
                 </div>
-                <h2 class="text-2xl font-bold">{{ $activeSession->name }}</h2>
+                <h2 class="text-xl md:text-2xl font-bold">{{ $activeSession->name }}</h2>
                 <p class="text-indigo-100 mt-1">
                     @if($currentTerm)
                         Current Term: <span class="font-semibold">{{ $currentTerm->name }}</span>
@@ -35,12 +35,14 @@
                 </p>
             </div>
             <div class="flex gap-3">
+                @if(auth()->user()->isAdmin())
                 <a href="{{ route('students.create') }}" class="bg-white text-indigo-600 px-4 py-2 rounded-lg font-medium hover:bg-indigo-50 transition-colors flex items-center gap-2">
                     <i class="fas fa-user-plus"></i> Add Student
                 </a>
                 <a href="{{ route('scratch-cards.index') }}" class="bg-indigo-500 text-white px-4 py-2 rounded-lg font-medium hover:bg-indigo-400 transition-colors flex items-center gap-2">
                     <i class="fas fa-ticket-alt"></i> Generate Cards
                 </a>
+                @endif
             </div>
         </div>
     </div>
@@ -57,7 +59,7 @@
     @endif
 
     {{-- Stats Grid --}}
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
         {{-- Total Students --}}
         <div class="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow duration-300">
             <div class="p-6">
@@ -91,11 +93,13 @@
                     </div>
                 </div>
             </div>
+            @if(auth()->user()->isAdmin())
             <div class="bg-gray-50 px-6 py-3 border-t border-gray-100">
                 <a href="{{ route('classes.index') }}" class="text-sm text-green-600 hover:text-green-800 font-medium flex items-center gap-1">
                     Manage <i class="fas fa-arrow-right text-xs"></i>
                 </a>
             </div>
+            @endif
         </div>
 
         {{-- Total Subjects --}}
@@ -111,11 +115,13 @@
                     </div>
                 </div>
             </div>
+            @if(auth()->user()->isAdmin())
             <div class="bg-gray-50 px-6 py-3 border-t border-gray-100">
                 <a href="{{ route('subjects.index') }}" class="text-sm text-purple-600 hover:text-purple-800 font-medium flex items-center gap-1">
                     View all <i class="fas fa-arrow-right text-xs"></i>
                 </a>
             </div>
+            @endif
         </div>
 
         {{-- Available Cards --}}
@@ -131,11 +137,13 @@
                     </div>
                 </div>
             </div>
+            @if(auth()->user()->isAdmin())
             <div class="bg-gray-50 px-6 py-3 border-t border-gray-100">
                 <a href="{{ route('scratch-cards.index') }}" class="text-sm text-yellow-600 hover:text-yellow-800 font-medium flex items-center gap-1">
                     Manage <i class="fas fa-arrow-right text-xs"></i>
                 </a>
             </div>
+            @endif
         </div>
 
         {{-- Results Processed --}}
@@ -151,11 +159,13 @@
                     </div>
                 </div>
             </div>
+            @if(auth()->user()->isAdmin())
             <div class="bg-gray-50 px-6 py-3 border-t border-gray-100">
                 <a href="{{ route('results.index') }}" class="text-sm text-blue-600 hover:text-blue-800 font-medium flex items-center gap-1">
                     View results <i class="fas fa-arrow-right text-xs"></i>
                 </a>
             </div>
+            @endif
         </div>
 
         {{-- Success Rate --}}
@@ -345,13 +355,15 @@
             <i class="fas fa-bolt text-yellow-500"></i>
             Quick Actions
         </h3>
-        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+        <div class="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-6 gap-3 md:gap-4">
+            @if(auth()->user()->isAdmin())
             <a href="{{ route('students.create') }}" class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors group">
                 <div class="bg-indigo-100 group-hover:bg-indigo-200 rounded-full p-3 mb-2">
                     <i class="fas fa-user-plus text-indigo-600 text-xl"></i>
                 </div>
                 <span class="text-sm font-medium text-gray-700">Add Student</span>
             </a>
+            @endif
             <a href="{{ route('scores.scoresheet') }}" class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors group">
                 <div class="bg-green-100 group-hover:bg-green-200 rounded-full p-3 mb-2">
                     <i class="fas fa-table text-green-600 text-xl"></i>
@@ -364,24 +376,30 @@
                 </div>
                 <span class="text-sm font-medium text-gray-700">Attendance</span>
             </a>
+            @if(auth()->user()->isAdmin())
             <a href="{{ route('results.index') }}" class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors group">
                 <div class="bg-blue-100 group-hover:bg-blue-200 rounded-full p-3 mb-2">
                     <i class="fas fa-poll text-blue-600 text-xl"></i>
                 </div>
                 <span class="text-sm font-medium text-gray-700">Results</span>
             </a>
+            @endif
+            @if(auth()->user()->isAdmin())
             <a href="{{ route('classes.index') }}" class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors group">
                 <div class="bg-purple-100 group-hover:bg-purple-200 rounded-full p-3 mb-2">
                     <i class="fas fa-chalkboard text-purple-600 text-xl"></i>
                 </div>
                 <span class="text-sm font-medium text-gray-700">Classes</span>
             </a>
+            @endif
+            @if(auth()->user()->isAdmin())
             <a href="{{ route('report-settings.index') }}" class="flex flex-col items-center p-4 rounded-lg hover:bg-gray-50 transition-colors group">
                 <div class="bg-orange-100 group-hover:bg-orange-200 rounded-full p-3 mb-2">
                     <i class="fas fa-cog text-orange-600 text-xl"></i>
                 </div>
                 <span class="text-sm font-medium text-gray-700">Settings</span>
             </a>
+            @endif
         </div>
     </div>
 </div>

@@ -44,12 +44,12 @@
                         Delete Batch
                     </button>
 
-                    <a href="{{ route('scratch-cards.print', $batch) }}" target="_blank"
-   class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
-    <i class="fas fa-print mr-2"></i> Print Batch
-</a>
+
                 </form>
             @endif
+            <a href="{{ route('scratch-cards.print', $batch) }}" target="_blank" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                <i class="fas fa-print mr-2"></i> Print Batch
+            </a>
             <a href="{{ route('scratch-cards.batches.index') }}" class="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
                 Back to Batches
             </a>

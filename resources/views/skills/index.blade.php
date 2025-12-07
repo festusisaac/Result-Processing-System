@@ -3,7 +3,7 @@
 @section('content')
 <div class="container mx-auto px-4 py-6">
     <div class="bg-white rounded-lg shadow-md p-6">
-        <h2 class="text-2xl font-bold mb-6">Skills Development and Behavioural Attributes</h2>
+        <h2 class="text-2xl font-bold mb-6 hidden md:block">Skills Development and Behavioural Attributes</h2>
 
         <!-- Filters -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
@@ -39,8 +39,8 @@
 
         <form id="skillsForm" method="POST" action="{{ route('skills.store-bulk') }}">
             @csrf
-            <!-- Skills Table -->
-            <div class="overflow-x-auto">
+            <!-- Skills Table (Desktop) -->
+            <div class="overflow-x-auto hidden md:block">
                 <table class="min-w-full divide-y divide-gray-200">
                     <thead>
                         <tr>
@@ -62,6 +62,12 @@
                     </tbody>
                 </table>
             </div>
+
+            <!-- Mobile Skills Cards -->
+            <div id="mobileSkillsContainer" class="md:hidden space-y-4">
+                <!-- Cards will be populated by JavaScript -->
+            </div>
+
 
             <!-- Action Buttons -->
             <div class="mt-6 flex justify-between">
@@ -105,7 +111,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('search');
     const fetchButton = document.getElementById('fetchStudents');
     const tableBody = document.getElementById('skillsTableBody');
+    const mobileContainer = document.getElementById('mobileSkillsContainer');
     const skillsForm = document.getElementById('skillsForm');
+
     const filterStatus = document.getElementById('filterStatus');
     const studentCount = document.getElementById('studentCount');
     let allStudents = [];
@@ -181,6 +189,13 @@ document.addEventListener('DOMContentLoaded', function() {
     // Render students table
     function renderStudentsTable() {
         tableBody.innerHTML = '';
+        mobileContainer.innerHTML = '';
+
+        if (allStudents.length === 0) {
+            mobileContainer.innerHTML = '<div class="text-center py-8 text-gray-500">No students found.</div>';
+            tableBody.innerHTML = '<tr><td colspan="100%" class="text-center py-4 text-gray-500">No students found.</td></tr>';
+            return;
+        }
         
         allStudents.forEach(student => {
             const row = document.createElement('tr');
@@ -208,7 +223,40 @@ document.addEventListener('DOMContentLoaded', function() {
                 ${skillsHtml}
             `;
             tableBody.appendChild(row);
+
+            // ---------------------------------------------------------
+            // Mobile Card View Rendering
+            // ---------------------------------------------------------
+            const card = document.createElement('div');
+            card.className = "bg-gray-50 p-4 rounded-lg shadow-sm border border-gray-100";
+            
+            let mobileSkillsHtml = '<div class="grid grid-cols-2 gap-3 mt-3">';
+            skillAttributes.forEach(skill => {
+                const score = student.skills[skill.id]?.score || '';
+                 mobileSkillsHtml += `
+                    <div>
+                        <label class="block text-xs font-medium text-gray-500 mb-1 truncate" title="${skill.name}">${skill.name}</label>
+                        <input type="number" name="skills[${student.id}][${skill.id}]" 
+                               value="${score}"
+                               class="w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 text-center"
+                               min="0" max="5" step="1">
+                    </div>
+                `;
+            });
+            mobileSkillsHtml += '</div>';
+
+            card.innerHTML = `
+                <div class="flex justify-between items-start">
+                    <div>
+                        <h3 class="font-bold text-gray-900">${student.full_name}</h3>
+                        <p class="text-xs text-gray-500">${student.adm_no}</p>
+                    </div>
+                </div>
+                ${mobileSkillsHtml}
+            `;
+            mobileContainer.appendChild(card);
         });
+
 
         studentCount.textContent = allStudents.length;
     }

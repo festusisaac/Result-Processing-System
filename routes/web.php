@@ -59,6 +59,9 @@ Route::middleware('guest')->group(function () {
 });
 
 
+// Fallback route for PWA offline
+Route::view('/offline', 'offline');
+
 // Protected routes
 // Require authentication and an active academic session for most routes.
 Route::middleware(['auth', 'active.session'])->group(function () {
@@ -118,6 +121,16 @@ Route::middleware(['auth', 'active.session'])->group(function () {
         Route::post('/reports/result-management/{term}/publish', [ResultManagementController::class, 'publish'])->name('reports.result_management.publish');
         Route::post('/reports/result-management/{term}/unpublish', [ResultManagementController::class, 'unpublish'])->name('reports.result_management.unpublish');
         Route::post('/reports/result-management/{term}/status', [ResultManagementController::class, 'setStatus'])->name('reports.result_management.set_status');
+        
+        // Result UI (Moved from Admin+Teacher)
+        Route::get('/results', [ScoreController::class, 'results'])->name('results.index');
+        Route::get('/results/data', [ScoreController::class, 'resultsData'])->name('results.data');
+        Route::get('/results/{student}', [ScoreController::class, 'showResults'])->name('results.show');
+        Route::get('/results/{student}/print', [ScoreController::class, 'printResults'])->name('results.print');
+        Route::post('/results/calculate-summaries', [App\Http\Controllers\ScoreController::class, 'calculateSummaries'])->name('results.calculate_summaries');
+        Route::post('/results/terms/{term}/publish', [ResultPublishController::class, 'toggle'])->name('results.terms.publish');
+        Route::get('/results/terms/{term}/published-status', [ResultPublishController::class, 'status'])->name('results.terms.published-status');
+
     });
     
     // ADMIN + TEACHER ROUTES (Student & Assessment Management)
@@ -139,17 +152,18 @@ Route::middleware(['auth', 'active.session'])->group(function () {
         Route::get('/broadsheet', [ScoreController::class, 'broadsheet'])->name('scores.broadsheet');
         Route::get('/broadsheet/data', [ScoreController::class, 'broadsheetData'])->name('scores.broadsheet.data');
         Route::get('/broadsheet/export', [ScoreController::class, 'broadsheetExport'])->name('scores.broadsheet.export');
-        // Result UI
-        Route::get('/results', [ScoreController::class, 'results'])->name('results.index');
-        Route::get('/results/data', [ScoreController::class, 'resultsData'])->name('results.data');
+        // Result UI - MOVED TO ADMIN ONLY
+
         // Web endpoint for fetching students with scores (used by the Blade UI)
         Route::get('/scores/students', [ScoreController::class, 'getStudentsWithScores'])->name('scores.students');
         // Bulk store route used by the scoresheet form (named so blade route() resolves)
         Route::post('/scores/store-bulk', [ScoreController::class, 'storeBulk'])->name('scores.store-bulk');
 
         Route::resource('scores', ScoreController::class);
-        Route::get('/results/{student}', [ScoreController::class, 'showResults'])->name('results.show');
-        Route::get('/results/{student}/print', [ScoreController::class, 'printResults'])->name('results.print');
+        // Result Details - MOVED TO ADMIN ONLY, BUT TEACHERS MIGHT NEED PRINT? 
+        // User said "dont want teachers to be able to access the result feature", usually implies checking other students' results.
+        // I will move these to admin only as requested.
+
 
         // Attendance management (specific routes first)
         Route::get('/attendance', [AttendanceController::class, 'attendance'])->name('attendance.index');
@@ -173,10 +187,8 @@ Route::middleware(['auth', 'active.session'])->group(function () {
         Route::delete('/comments/{comment}', [CommentController::class, 'destroy'])->name('comments.destroy');
         Route::get('/comments/{comment}', [CommentController::class, 'show'])->name('comments.show');
         
-        // Result publish/unpublish (admin/teacher)
-        Route::post('/results/calculate-summaries', [App\Http\Controllers\ScoreController::class, 'calculateSummaries'])->name('results.calculate_summaries');
-        Route::post('/results/terms/{term}/publish', [ResultPublishController::class, 'toggle'])->name('results.terms.publish');
-        Route::get('/results/terms/{term}/published-status', [ResultPublishController::class, 'status'])->name('results.terms.published-status');
+        // Result publish routes moved to Admin only
+
     });
     
     // ADMIN + ACCOUNTANT ROUTES (Scratch Card Management)
